@@ -1,6 +1,8 @@
 import { Router } from "express";
+
 import { requireAuth } from "../../middlewares/auth.middleware";
-import { create, me, cancel } from "./order.controller";
+
+import { cancel, create, me } from "./order.controller";
 
 const router = Router();
 

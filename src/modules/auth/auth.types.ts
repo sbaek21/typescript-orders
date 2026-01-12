@@ -1,6 +1,6 @@
 export type User = {
-    id: string;
-    email: string;
-    passwordHash: string;
-    createdAt: string;
+	id: string;
+	email: string;
+	passwordHash: string;
+	createdAt: string;
 };

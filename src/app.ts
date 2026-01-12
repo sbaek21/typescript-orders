@@ -1,8 +1,9 @@
 import express from "express";
-import healthRouter from "./routes/health.routes";
+
 import authRouter from "./modules/auth/auth.routes";
 import orderRouter from "./modules/order/order.routes";
 import productRouter from "./modules/product/product.routes";
+import healthRouter from "./routes/health.routes";
 
 const app = express();
 

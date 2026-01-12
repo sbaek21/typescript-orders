@@ -1,16 +1,16 @@
 export type OrderStatus = "PLACED" | "CANCELLED";
 
 export type OrderItem = {
-    productId: string;
-    quantity: number;
-    priceAtPurchase: number;
+	productId: string;
+	quantity: number;
+	priceAtPurchase: number;
 };
 
 export type Order = {
-    id: string;
-    userId: string;
-    status: OrderStatus;
-    items: OrderItem[];
-    createdAt: string;
-    cancelledAt?: string;
+	id: string;
+	userId: string;
+	status: OrderStatus;
+	items: OrderItem[];
+	createdAt: string;
+	cancelledAt?: string;
 };
