@@ -1,7 +1,6 @@
 import "dotenv/config";
+
 import { prisma } from "../src/db";
-
-
 
 async function main(): Promise<void> {
 	await prisma.product.upsert({
@@ -26,7 +25,6 @@ async function main(): Promise<void> {
 main()
 	.then(async () => prisma.$disconnect())
 	.catch(async (e) => {
-		// eslint-disable-next-line no-console
 		console.error(e);
 		await prisma.$disconnect();
 		process.exit(1);
