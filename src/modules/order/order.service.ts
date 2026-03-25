@@ -1,68 +1,60 @@
-import { randomUUID } from "crypto";
-
-import { findProduct } from "../product/product.store";
-
-import { ordersById } from "./order.store";
-import type { Order } from "./order.types";
+import { prisma } from "../../config/prisma";
 
 export type CreateOrderInput = {
-	userId: string;
-	items: { productId: string; quantity: number }[];
+  userId: string;
+  items: { productId: string; quantity: number }[];
 };
 
-export function createOrder(input: CreateOrderInput): Order {
-	if (!input.items.length) {
-		throw new Error("ITEMS_REQUIRED");
-	}
+export async function createOrder(input: CreateOrderInput) {
+  if (!input.items.length) throw new Error("ITEMS_REQUIRED");
 
-	const items = input.items.map((it) => {
-		const product = findProduct(it.productId);
-		if (!product) {
-			throw new Error("PRODUCT_NOT_FOUND");
-		}
-		if (!Number.isInteger(it.quantity) || it.quantity <= 0) {
-			throw new Error("INVALID_QUANTITY");
-		}
+  // 상품 존재 + quantity 검증
+  const itemsWithPrice = await Promise.all(
+    input.items.map(async (it) => {
+      const product = await prisma.product.findUnique({
+        where: { id: it.productId },
+      });
+      if (!product) throw new Error("PRODUCT_NOT_FOUND");
+      if (!Number.isInteger(it.quantity) || it.quantity <= 0)
+        throw new Error("INVALID_QUANTITY");
 
-		return {
-			productId: product.id,
-			quantity: it.quantity,
-			priceAtPurchase: product.price,
-		};
-	});
+      return {
+        productId: product.id,
+        quantity: it.quantity,
+        priceAtPurchase: product.price,
+      };
+    })
+  );
 
-	const order: Order = {
-		id: randomUUID(),
-		userId: input.userId,
-		status: "PLACED",
-		items,
-		createdAt: new Date().toISOString(),
-	};
+  // Order + OrderItem 한 번에 생성 (nested write)
+  const order = await prisma.order.create({
+    data: {
+      userId: input.userId,
+      items: { create: itemsWithPrice },
+    },
+    include: { items: true },
+  });
 
-	ordersById.set(order.id, order);
-
-	return order;
+  return order;
 }
 
-export function listMyOrders(userId: string): Order[] {
-	return Array.from(ordersById.values()).filter((o) => o.userId === userId);
+export async function listMyOrders(userId: string) {
+  return prisma.order.findMany({
+    where: { userId },
+    include: { items: { include: { product: true } } },
+    orderBy: { createdAt: "desc" },
+  });
 }
 
-export function cancelOrder(orderId: string, userId: string): Order {
-	const order = ordersById.get(orderId);
-	if (!order) {
-		throw new Error("ORDER_NOT_FOUND");
-	}
-	if (order.userId !== userId) {
-		throw new Error("FORBIDDEN");
-	}
-	if (order.status === "CANCELLED") {
-		return order;
-	}
+export async function cancelOrder(orderId: string, userId: string) {
+  const order = await prisma.order.findUnique({ where: { id: orderId } });
+  if (!order) throw new Error("ORDER_NOT_FOUND");
+  if (order.userId !== userId) throw new Error("FORBIDDEN");
+  if (order.status === "CANCELLED") return order; // 멱등성 유지
 
-	order.status = "CANCELLED";
-	order.cancelledAt = new Date().toISOString();
-	ordersById.set(order.id, order);
-
-	return order;
+  return prisma.order.update({
+    where: { id: orderId },
+    data: { status: "CANCELLED", cancelledAt: new Date() },
+    include: { items: true },
+  });
 }
