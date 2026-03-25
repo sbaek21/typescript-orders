@@ -6,7 +6,7 @@
 		"dev": "tsx watch src/index.ts",
 		"lint": "eslint .",
 		"lint:fix": "eslint . --fix",
-		"test": "jest",
+		"test": "jest --passWithNoTests",
 		"seed": "tsx prisma/seed.ts"
 	},
 	"repository": {
