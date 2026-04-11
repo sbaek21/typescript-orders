@@ -1,4 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+import { OrderStatus } from "@prisma/client";
+
 import { prisma } from "../../config/prisma";
 
 export type CreateOrderInput = {
@@ -6,42 +8,59 @@ export type CreateOrderInput = {
 	items: { productId: string; quantity: number }[];
 };
 
+// 허용된 상태 전이 정의
+const VALID_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
+	PLACED: [OrderStatus.CONFIRMED, OrderStatus.CANCELLED],
+	CONFIRMED: [OrderStatus.SHIPPED, OrderStatus.CANCELLED],
+	SHIPPED: [OrderStatus.DELIVERED],
+	DELIVERED: [],
+	CANCELLED: [],
+};
+
 export async function createOrder(input: CreateOrderInput) {
 	if (!input.items.length) {
 		throw new Error("ITEMS_REQUIRED");
 	}
 
-	// 상품 존재 + quantity 검증
-	const itemsWithPrice = await Promise.all(
-		input.items.map(async (it) => {
-			const product = await prisma.product.findUnique({
-				where: { id: it.productId },
-			});
-			if (!product) {
-				throw new Error("PRODUCT_NOT_FOUND");
-			}
-			if (!Number.isInteger(it.quantity) || it.quantity <= 0) {
-				throw new Error("INVALID_QUANTITY");
-			}
+	// 트랜잭션: 재고 확인 + 차감 + 주문 생성 원자적 처리
+	return prisma.$transaction(async (tx) => {
+		// 상품 존재 + quantity + 재고 검증
+		const itemsWithPrice = await Promise.all(
+			input.items.map(async (it) => {
+				const product = await tx.product.findUnique({ where: { id: it.productId } });
+				if (!product) {
+					throw new Error("PRODUCT_NOT_FOUND");
+				}
+				if (!Number.isInteger(it.quantity) || it.quantity <= 0) {
+					throw new Error("INVALID_QUANTITY");
+				}
+				if (product.stock < it.quantity) {
+					throw new Error("INSUFFICIENT_STOCK");
+				}
 
-			return {
-				productId: product.id,
-				quantity: it.quantity,
-				priceAtPurchase: product.price,
-			};
-		}),
-	);
+				// 재고 차감
+				await tx.product.update({
+					where: { id: it.productId },
+					data: { stock: { decrement: it.quantity } },
+				});
 
-	// Order + OrderItem 한 번에 생성 (nested write)
-	const order = await prisma.order.create({
-		data: {
-			userId: input.userId,
-			items: { create: itemsWithPrice },
-		},
-		include: { items: true },
+				return {
+					productId: product.id,
+					quantity: it.quantity,
+					priceAtPurchase: product.price,
+				};
+			}),
+		);
+
+		// Order + OrderItem 한 번에 생성 (nested write)
+		return tx.order.create({
+			data: {
+				userId: input.userId,
+				items: { create: itemsWithPrice },
+			},
+			include: { items: { include: { product: true } } },
+		});
 	});
-
-	return order;
 }
 
 export async function listMyOrders(userId: string) {
@@ -52,7 +71,7 @@ export async function listMyOrders(userId: string) {
 	});
 }
 
-export async function cancelOrder(orderId: string, userId: string) {
+export async function updateOrderStatus(orderId: string, userId: string, newStatus: OrderStatus) {
 	const order = await prisma.order.findUnique({ where: { id: orderId } });
 	if (!order) {
 		throw new Error("ORDER_NOT_FOUND");
@@ -60,13 +79,41 @@ export async function cancelOrder(orderId: string, userId: string) {
 	if (order.userId !== userId) {
 		throw new Error("FORBIDDEN");
 	}
-	if (order.status === "CANCELLED") {
-		return order;
-	} // 멱등성 유지
+
+	// 상태 전이 유효성 검증
+	const allowed = VALID_TRANSITIONS[order.status];
+	if (!allowed.includes(newStatus)) {
+		throw new Error("INVALID_STATUS_TRANSITION");
+	}
+
+	// 취소 시 재고 복구 (transaction)
+	if (newStatus === OrderStatus.CANCELLED) {
+		return prisma.$transaction(async (tx) => {
+			const items = await tx.orderItem.findMany({ where: { orderId } });
+			await Promise.all(
+				items.map((item) =>
+					tx.product.update({
+						where: { id: item.productId },
+						data: { stock: { increment: item.quantity } },
+					}),
+				),
+			);
+
+			return tx.order.update({
+				where: { id: orderId },
+				data: { status: newStatus, cancelledAt: new Date() },
+				include: { items: true },
+			});
+		});
+	}
 
 	return prisma.order.update({
 		where: { id: orderId },
-		data: { status: "CANCELLED", cancelledAt: new Date() },
+		data: { status: newStatus },
 		include: { items: true },
 	});
+}
+
+export async function cancelOrder(orderId: string, userId: string) {
+	return updateOrderStatus(orderId, userId, OrderStatus.CANCELLED);
 }
