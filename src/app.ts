@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors";
 
 import authRouter from "./modules/auth/auth.routes";
 import orderRouter from "./modules/order/order.routes";
@@ -6,6 +7,11 @@ import productRouter from "./modules/product/product.routes";
 import healthRouter from "./routes/health.routes";
 
 const app = express();
+
+app.use(cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+}));
 
 app.use(express.json());
 app.use("/health", healthRouter);

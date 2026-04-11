@@ -21,20 +21,20 @@ const prisma = new PrismaClient({ adapter });
 async function main(): Promise<void> {
 	await prisma.product.upsert({
 		where: { id: "p1" },
-		update: {},
-		create: { id: "p1", name: "Keyboard", price: 50 },
+		update: { stock: 100 },
+		create: { id: "p1", name: "Keyboard", price: 50, stock: 100 },
 	});
 
 	await prisma.product.upsert({
 		where: { id: "p2" },
-		update: {},
-		create: { id: "p2", name: "Mouse", price: 25 },
+		update: { stock: 50 },
+		create: { id: "p2", name: "Mouse", price: 25, stock: 50 },
 	});
 
 	await prisma.product.upsert({
 		where: { id: "p3" },
-		update: {},
-		create: { id: "p3", name: "Monitor", price: 200 },
+		update: { stock: 20 },
+		create: { id: "p3", name: "Monitor", price: 200, stock: 20 },
 	});
 }
 

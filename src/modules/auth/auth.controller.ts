@@ -11,6 +11,7 @@ export async function register(req: Request, res: Response): Promise<void> {
 
 		return;
 	} catch (err) {
+		console.error("Register error:", err);
 		const message = err instanceof Error ? err.message : "UNKNOWN_ERROR";
 
 		if (message === "EMAIL_AND_PASSWORD_REQUIRED") {

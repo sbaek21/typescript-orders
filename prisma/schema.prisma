@@ -19,6 +19,7 @@ model Product {
   id        String   @id
   name      String
   price     Int
+  stock     Int      @default(0)
   createdAt DateTime @default(now())
 
   orderItems OrderItem[]
@@ -29,6 +30,7 @@ model Order {
   userId      String
   status      OrderStatus @default(PLACED)
   createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt @default(now())
   cancelledAt DateTime?
 
   user        User        @relation(fields: [userId], references: [id])
@@ -51,5 +53,8 @@ model OrderItem {
 
 enum OrderStatus {
   PLACED
+  CONFIRMED
+  SHIPPED
+  DELIVERED
   CANCELLED
 }
