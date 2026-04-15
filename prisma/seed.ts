@@ -6,7 +6,6 @@ import pkg from "pg";
 
 const { Pool } = pkg;
 
-// const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const pool = new Pool({
 	host: "localhost",
 	port: 5432,
@@ -14,28 +13,32 @@ const pool = new Pool({
 	password: "app_pw",
 	database: "app_db",
 });
-// const adapter = new PrismaPg(pool);
 const adapter = new PrismaPg(pool as any);
 const prisma = new PrismaClient({ adapter });
 
+const products = [
+	{ id: "p1", name: "Mechanical Keyboard", price: 89, stock: 30 },
+	{ id: "p2", name: "Wireless Mouse", price: 45, stock: 50 },
+	{ id: "p3", name: '27" Monitor', price: 329, stock: 15 },
+	{ id: "p4", name: "USB-C Hub", price: 39, stock: 60 },
+	{ id: "p5", name: "Webcam HD", price: 79, stock: 25 },
+	{ id: "p6", name: "Desk Lamp", price: 35, stock: 4 }, // low stock
+	{ id: "p7", name: "Laptop Stand", price: 49, stock: 20 },
+	{ id: "p8", name: "Headphones", price: 129, stock: 18 },
+	{ id: "p9", name: "Mousepad XL", price: 22, stock: 0 }, // out of stock
+	{ id: "p10", name: "Cable Organizer", price: 15, stock: 3 }, // low stock
+];
+
 async function main(): Promise<void> {
-	await prisma.product.upsert({
-		where: { id: "p1" },
-		update: { stock: 100 },
-		create: { id: "p1", name: "Keyboard", price: 50, stock: 100 },
-	});
-
-	await prisma.product.upsert({
-		where: { id: "p2" },
-		update: { stock: 50 },
-		create: { id: "p2", name: "Mouse", price: 25, stock: 50 },
-	});
-
-	await prisma.product.upsert({
-		where: { id: "p3" },
-		update: { stock: 20 },
-		create: { id: "p3", name: "Monitor", price: 200, stock: 20 },
-	});
+	await Promise.all(
+		products.map((product) =>
+			prisma.product.upsert({
+				where: { id: product.id },
+				update: { name: product.name, price: product.price, stock: product.stock },
+				create: product,
+			}),
+		),
+	);
 }
 
 main()
