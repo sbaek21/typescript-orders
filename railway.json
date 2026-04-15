@@ -1,0 +1,9 @@
+{
+  "build": {
+    "buildCommand": "npm run build",
+    "watchPatterns": ["src/**"]
+  },
+  "deploy": {
+    "startCommand": "npm run start"
+  }
+}
