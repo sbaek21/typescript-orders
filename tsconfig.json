@@ -3,6 +3,7 @@
     "target": "es2020",
     "module": "commonjs",
     "moduleResolution": "node",
+    "ignoreDeprecations": "5.0",
     "strict": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -11,9 +12,7 @@
     "outDir": "dist"
   },
   "include": [
-    "src/**/*.ts",
-    "prisma.config.ts",
-    "prisma/**/*.ts"
+    "src/**/*.ts"
   ],
   "exclude": [
     "node_modules",
