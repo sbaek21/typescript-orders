@@ -4,6 +4,8 @@
 	"description": "Bootstrap your new TypeScript project with the bare minimum dependencies",
 	"scripts": {
 		"dev": "tsx watch src/index.ts",
+		"build": "tsc",
+		"start": "node dist/index.js",
 		"lint": "eslint .",
 		"lint:fix": "eslint . --fix",
 		"test": "jest --passWithNoTests",
