@@ -21,8 +21,8 @@ app.use("/health", healthRouter);
 app.use("/auth", authRouter);
 app.use("/orders", orderRouter);
 app.use("/products", productRouter);
-app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  console.error("ERROR:", err.message, err.stack);
-  res.status(500).json({ error: "internal server error" });
+app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+	console.error("ERROR:", err.message, err.stack);
+	res.status(500).json({ error: "internal server error" });
 });
 export default app;

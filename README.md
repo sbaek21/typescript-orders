@@ -2,9 +2,10 @@
 
 A full-stack commerce demo focused on authenticated order processing, transactional stock updates, and state-based lifecycle rules.
 
-<!-- ## Live Demo
+## Live Demo
 
-- **URL:** _coming after deployment_ -->
+- **API:** https://typescript-orders-production.up.railway.app
+- **Frontend:** _coming after Vercel deployment_
 
 ## Demo Account
 
@@ -161,7 +162,9 @@ DATABASE_URL=postgresql://app:app_pw@localhost:5432/app_db
 
 ## Deployment
 
-- Frontend: Vercel
+- Frontend: Vercel _(coming soon)_
 - Backend + PostgreSQL: Railway
 
-**Live demo:** _link coming after deployment_
+**Live API base URL:** https://typescript-orders-production.up.railway.app
+
+<!-- **Live API:** https://typescript-orders-production.up.railway.app/health -->
