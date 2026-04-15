@@ -1,7 +1,8 @@
 import axios from "axios";
+import { useAuthStore } from "../store/authStore";
 
 const api = axios.create({
-	baseURL: "http://localhost:3000",
+	baseURL: import.meta.env.VITE_API_URL ?? "http://localhost:3000",
 });
 
 api.interceptors.request.use((config) => {
@@ -12,5 +13,18 @@ api.interceptors.request.use((config) => {
 
 	return config;
 });
+
+api.interceptors.response.use(
+	(response) => response,
+	(error: unknown) => {
+		const err = error as { response?: { status?: number } };
+		if (err.response?.status === 401) {
+			useAuthStore.getState().logout();
+			window.location.href = "/login";
+		}
+
+		return Promise.reject(error);
+	},
+);
 
 export default api;
