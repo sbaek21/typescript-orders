@@ -6,14 +6,7 @@ import bcrypt from "bcrypt";
 import pkg from "pg";
 
 const { Pool } = pkg;
-
-const pool = new Pool({
-	host: "localhost",
-	port: 5432,
-	user: "app",
-	password: "app_pw",
-	database: "app_db",
-});
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const adapter = new PrismaPg(pool as any);
 const prisma = new PrismaClient({ adapter });
 
