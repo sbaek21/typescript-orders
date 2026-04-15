@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-import { OrderStatus } from "@prisma/client";
+import { OrderStatus, Prisma } from "@prisma/client";
 
 import { prisma } from "../../config/prisma";
 
@@ -23,7 +23,7 @@ export async function createOrder(input: CreateOrderInput) {
 	}
 
 	// 트랜잭션: 재고 확인 + 차감 + 주문 생성 원자적 처리
-	return prisma.$transaction(async (tx) => {
+	return prisma.$transaction(async (tx: Prisma.TransactionClient) => {
 		// 상품 존재 + quantity + 재고 검증
 		const itemsWithPrice = await Promise.all(
 			input.items.map(async (it) => {
@@ -88,7 +88,7 @@ export async function updateOrderStatus(orderId: string, userId: string, newStat
 
 	// 취소 시 재고 복구 (transaction)
 	if (newStatus === OrderStatus.CANCELLED) {
-		return prisma.$transaction(async (tx) => {
+		return prisma.$transaction(async (tx: Prisma.TransactionClient) => {
 			const items = await tx.orderItem.findMany({ where: { orderId } });
 			await Promise.all(
 				items.map((item) =>
