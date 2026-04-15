@@ -13,6 +13,7 @@ export default function LoginPage() {
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
+		setError(""); // 재시도 시 에러 초기화
 		try {
 			const res = await api.post("/auth/login", { email, password });
 			login(res.data.accessToken);
@@ -30,7 +31,7 @@ export default function LoginPage() {
 					<input
 						placeholder="Email"
 						value={email}
-						onChange={(e) => setEmail(e.target.value)}
+						onChange={(e) => { setEmail(e.target.value); setError(""); }}
 						style={{ width: "100%", marginBottom: 8, padding: 8 }}
 					/>
 				</div>
@@ -39,7 +40,7 @@ export default function LoginPage() {
 						type="password"
 						placeholder="Password"
 						value={password}
-						onChange={(e) => setPassword(e.target.value)}
+						onChange={(e) => { setPassword(e.target.value); setError(""); }}
 						style={{ width: "100%", marginBottom: 8, padding: 8 }}
 					/>
 				</div>
