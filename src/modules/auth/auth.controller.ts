@@ -43,6 +43,7 @@ export async function login(req: Request, res: Response): Promise<void> {
 
 		return;
 	} catch (err) {
+		console.error("Login error:", err);
 		const message = err instanceof Error ? err.message : "UNKNOWN_ERROR";
 
 		if (message === "EMAIL_AND_PASSWORD_REQUIRED") {
