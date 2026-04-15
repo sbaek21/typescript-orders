@@ -5,7 +5,7 @@ A full-stack commerce demo focused on authenticated order processing, transactio
 ## Live Demo
 
 - **API:** https://typescript-orders-production.up.railway.app
-- **Frontend:** _coming after Vercel deployment_
+- **Frontend:** https://shopflow-opal.vercel.app
 
 ## Demo Account
 
@@ -162,9 +162,9 @@ DATABASE_URL=postgresql://app:app_pw@localhost:5432/app_db
 
 ## Deployment
 
-- Frontend: Vercel _(coming soon)_
+- Frontend: Vercel
 - Backend + PostgreSQL: Railway
 
 **Live API base URL:** https://typescript-orders-production.up.railway.app
 
-<!-- **Live API:** https://typescript-orders-production.up.railway.app/health -->
+**Live Frontend URL:** https://shopflow-opal.vercel.app

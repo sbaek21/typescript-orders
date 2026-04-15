@@ -9,14 +9,6 @@ const adapter_pg_1 = require("@prisma/adapter-pg");
 const client_1 = require("@prisma/client");
 const pg_1 = __importDefault(require("pg"));
 const { Pool } = pg_1.default;
-// const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-const pool = new Pool({
-    host: "localhost",
-    port: 5432,
-    user: "app",
-    password: "app_pw",
-    database: "app_db",
-});
-// const adapter = new PrismaPg(pool);
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const adapter = new adapter_pg_1.PrismaPg(pool);
 exports.prisma = new client_1.PrismaClient({ adapter });

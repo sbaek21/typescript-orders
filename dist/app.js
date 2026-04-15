@@ -20,4 +20,8 @@ app.use("/health", health_routes_1.default);
 app.use("/auth", auth_routes_1.default);
 app.use("/orders", order_routes_1.default);
 app.use("/products", product_routes_1.default);
+app.use((err, _req, res, _next) => {
+    console.error("ERROR:", err.message, err.stack);
+    res.status(500).json({ error: "internal server error" });
+});
 exports.default = app;

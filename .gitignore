@@ -1,4 +1,6 @@
 node_modules/
 .env
+client/.env
 /src/generated/prisma
 # dist/
+HANDOFF.md

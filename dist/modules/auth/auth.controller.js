@@ -37,6 +37,7 @@ async function login(req, res) {
         return;
     }
     catch (err) {
+        console.error("Login error:", err);
         const message = err instanceof Error ? err.message : "UNKNOWN_ERROR";
         if (message === "EMAIL_AND_PASSWORD_REQUIRED") {
             res.status(400).json({ error: "email and password are required" });
