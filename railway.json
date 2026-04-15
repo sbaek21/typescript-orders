@@ -1,0 +1,8 @@
+{
+  "build": {
+    "buildCommand": "npm install"
+  },
+  "deploy": {
+    "startCommand": "npx tsx src/index.ts"
+  }
+}
