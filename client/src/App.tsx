@@ -7,9 +7,9 @@ import RegisterPage from "./pages/RegisterPage";
 import { useAuthStore } from "./store/authStore";
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
-	const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+	const token = useAuthStore((s) => s.token);
 
-	return isAuthenticated() ? <>{children}</> : <Navigate to="/login" />;
+	return token ? <>{children}</> : <Navigate to="/login" />;
 }
 
 export default function App() {
