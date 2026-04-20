@@ -1,6 +1,6 @@
 # ShopFlow
 
-A full-stack commerce demo focused on authenticated order processing, transactional stock updates, and state-based lifecycle rules.
+A deployed full-stack commerce demo focused on authenticated order processing, transactional stock updates, and state-based lifecycle rules.
 
 ## Live Demo
 
