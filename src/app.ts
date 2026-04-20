@@ -8,7 +8,7 @@ import healthRouter from "./routes/health.routes";
 
 const app = express();
 
-app.set("trust proxy", 1); // 프록시 1단계 신뢰 (Railway/Vercel 환경)
+app.set("trust proxy", true); // Railway 다단계 프록시 대응
 
 const allowedOrigins = process.env.CLIENT_URL ? [process.env.CLIENT_URL] : ["http://localhost:5173"];
 
