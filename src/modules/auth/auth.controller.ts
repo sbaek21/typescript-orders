@@ -3,6 +3,7 @@ import type { Request, Response } from "express";
 import { loginUser, registerUser } from "./auth.service";
 
 export async function register(req: Request, res: Response): Promise<void> {
+	console.log("CLIENT IP:", req.ip, "| X-Forwarded-For:", req.headers["x-forwarded-for"]);
 	try {
 		const { email, password } = req.body ?? {};
 		const user = await registerUser({ email, password });
