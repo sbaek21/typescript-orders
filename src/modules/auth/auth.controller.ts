@@ -36,6 +36,7 @@ export async function register(req: Request, res: Response): Promise<void> {
 }
 
 export async function login(req: Request, res: Response): Promise<void> {
+	console.log("CLIENT IP:", req.ip, "| X-Forwarded-For:", req.headers["x-forwarded-for"]);
 	try {
 		const { email, password } = req.body ?? {};
 		const result = await loginUser({ email, password });
